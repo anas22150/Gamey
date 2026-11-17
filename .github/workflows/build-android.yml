@@ -18,6 +18,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build APK with Godot
+        id: godot_export
         uses: firebelley/godot-export@v6.0.0
         with:
           godot_executable_download_url: https://github.com/godotengine/godot/releases/download/4.4.1-stable/Godot_v4.4.1-stable_linux.x86_64.zip
@@ -27,29 +28,25 @@ jobs:
           export_debug: true
           verbose: true
 
-      - name: Check export output
-        if: always()
+      - name: Copy APK to project directory
         shell: bash
         run: |
-          echo "========== CURRENT DIRECTORY =========="
-          pwd
+          APK=$(find "$HOME/.local/share/godot/builds" -type f -name "*.apk" -print -quit)
 
-          echo "========== APK FILES =========="
-          find . -type f -iname "*.apk" -print
+          if [ -z "$APK" ]; then
+            echo "ERROR: APK file was not generated!"
+            find "$HOME/.local/share/godot/builds" -type f
+            exit 1
+          fi
 
-          echo "========== PROJECT FILES =========="
-          find . -maxdepth 4 -type f | sort | head -200
-
-          echo "========== EXPORT DIRECTORIES =========="
-          ls -lah
-          ls -lah build 2>/dev/null || true
+          cp "$APK" "$GITHUB_WORKSPACE/PartyLegends.apk"
+          echo "APK copied successfully!"
+          ls -lh "$GITHUB_WORKSPACE/PartyLegends.apk"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
-        if: success()
         with:
           name: Party-Legends-APK
-          path: |
-            **/*.apk
+          path: PartyLegends.apk
           if-no-files-found: error
           
