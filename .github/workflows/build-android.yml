@@ -27,12 +27,19 @@ jobs:
           export_debug: true
           verbose: true
 
+      - name: Show generated APK files
+        shell: bash
+        run: |
+          echo "Searching for APK files..."
+          find . -type f -name "*.apk" -print
+          echo "Search completed."
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Party-Legends-APK
           path: |
-            *.apk
+            **/PartyLegends.apk
             **/*.apk
           if-no-files-found: error
           
