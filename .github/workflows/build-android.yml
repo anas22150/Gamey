@@ -27,19 +27,29 @@ jobs:
           export_debug: true
           verbose: true
 
-      - name: Show generated APK files
+      - name: Check export output
+        if: always()
         shell: bash
         run: |
-          echo "Searching for APK files..."
-          find . -type f -name "*.apk" -print
-          echo "Search completed."
+          echo "========== CURRENT DIRECTORY =========="
+          pwd
+
+          echo "========== APK FILES =========="
+          find . -type f -iname "*.apk" -print
+
+          echo "========== PROJECT FILES =========="
+          find . -maxdepth 4 -type f | sort | head -200
+
+          echo "========== EXPORT DIRECTORIES =========="
+          ls -lah
+          ls -lah build 2>/dev/null || true
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
+        if: success()
         with:
           name: Party-Legends-APK
           path: |
-            **/PartyLegends.apk
             **/*.apk
           if-no-files-found: error
           
